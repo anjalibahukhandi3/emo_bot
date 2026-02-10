@@ -13,7 +13,8 @@ data class ChatUiState(
     val currentInput: String = "",
     val isLoading: Boolean = false,
     val latestEmotion: String? = null,
-    val latestConfidence: Float? = null
+    val latestConfidence: Float? = null,
+    val liveScore: Int = 50
 )
 
 data class ChatMessage(
@@ -67,15 +68,18 @@ class EmotionViewModel : ViewModel() {
                     val emotion = response.emotion.replaceFirstChar { it.uppercase() }
                     
                     _uiState.update { state ->
+                        val updatedMessages = state.messages.map { msg ->
+                            if (msg.id == userMessage.id) {
+                                msg.copy(emotion = emotion, confidence = response.confidence)
+                            } else msg
+                        }
+                        
                         state.copy(
                             isLoading = false,
                             latestEmotion = emotion,
                             latestConfidence = response.confidence,
-                            messages = state.messages.map { msg ->
-                                if (msg.id == userMessage.id) {
-                                    msg.copy(emotion = emotion, confidence = response.confidence)
-                                } else msg
-                            }
+                            messages = updatedMessages,
+                            liveScore = calculateScore(updatedMessages)
                         )
                     }
                 }.onFailure { exception ->
@@ -84,6 +88,23 @@ class EmotionViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    private fun calculateScore(messages: List<ChatMessage>): Int {
+        val scoredMessages = messages.filter { it.emotion != null }
+        if (scoredMessages.isEmpty()) return 50
+
+        val totalScore = scoredMessages.sumOf { msg ->
+            when (msg.emotion?.lowercase()) {
+                "happy" -> 100
+                "neutral" -> 50
+                "fear" -> 30
+                "sad" -> 20
+                "angry" -> 0
+                else -> 50
+            }
+        }
+        return totalScore / scoredMessages.size
     }
     
     fun clearError() {

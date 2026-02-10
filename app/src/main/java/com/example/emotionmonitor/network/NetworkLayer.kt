@@ -1,14 +1,3 @@
-package com.example.emotionmonitor.model
-
-data class EmotionRequest(
-    val text: String
-)
-
-data class EmotionResponse(
-    val emotion: String,
-    val confidence: Float
-)
-
 package com.example.emotionmonitor.network
 
 import com.example.emotionmonitor.model.EmotionRequest
@@ -24,7 +13,7 @@ interface EmotionApiService {
 }
 
 object RetrofitClient {
-    private const val BASE_URL = "https://api.example.com/" // Replace with actual API URL
+    private const val BASE_URL = "http://10.0.2.2:8080/" // Local Ktor Backend (Emulator)
 
     val apiService: EmotionApiService by lazy {
         Retrofit.Builder()

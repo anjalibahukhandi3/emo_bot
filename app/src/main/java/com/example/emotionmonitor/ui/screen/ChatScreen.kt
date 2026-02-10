@@ -83,21 +83,39 @@ fun ChatScreen(
                         modifier = Modifier.padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "Latest Analysis",
-                            style = MaterialTheme.typography.labelMedium
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Latest Analysis",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Text(
+                                    text = "${uiState.latestEmotion ?: "Neutral"}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = getEmotionColor(uiState.latestEmotion)
+                                )
+                            }
 
-                        Text(
-                            text = "${uiState.latestEmotion ?: "Neutral"} ${
-                                uiState.latestConfidence?.let {
-                                    "(${(it * 100).toInt()}%)"
-                                } ?: ""
-                            }",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = getEmotionColor(uiState.latestEmotion)
-                        )
+                            VerticalDivider(modifier = Modifier.height(30.dp))
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Live Emotion Score",
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Text(
+                                    text = "${uiState.liveScore}%",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Black,
+                                    color = getScoreColor(uiState.liveScore)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -216,5 +234,15 @@ fun getEmotionColor(emotion: String?): Color {
         "fear" -> Color(0xFFFF9800)
         "neutral" -> Color.Gray
         else -> Color.Gray
+    }
+}
+
+fun getScoreColor(score: Int): Color {
+    return when {
+        score >= 80 -> Color(0xFF4CAF50) // Green
+        score >= 60 -> Color(0xFF8BC34A) // Light Green
+        score >= 40 -> Color(0xFFFFC107) // Amber
+        score >= 20 -> Color(0xFFFF9800) // Orange
+        else -> Color(0xFFF44336) // Red
     }
 }
